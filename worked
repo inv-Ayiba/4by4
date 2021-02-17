@@ -1,0 +1,178 @@
+import random
+def clueposition(posit) :
+    positionx = None;
+    positiony = None;
+
+    if  posit<4 and posit>=0 or posit>7 and posit<12  :
+        if(posit>3):
+            posit2=11-posit 
+            positiony=3;positionx=posit2 
+        elif(posit<4) : 
+           positiony=0;positionx=posit     
+    
+    elif(posit>3 and posit<8 or posit>11 and posit<16) :
+       
+       if(posit>11):
+            posit2=15-posit 
+            positionx=0;positiony=posit2   
+       else :
+          positionx=3;positiony=posit-4     
+    else:
+        positionx="Notx";positiony="NOty" 
+    if posit<4 :
+        HV = "V"
+        UDLR = "D"
+    elif posit>3 and posit<8 :
+        HV = "H"
+        UDLR = "L"
+    elif posit>6 and posit<12 :
+        HV = "V"
+        UDLR = "U"
+    elif posit>11 :
+        HV = "H"
+        UDLR = "R"
+
+    return [positionx,positiony,HV,UDLR]
+
+def cluepositionheight(position,matrix) :
+    scrapers = None
+    there = matrix[clueposition(position)[1]][clueposition(position)[0]]
+    p=[];
+    if clueposition(position)[2]=="V" and clueposition(position)[3]== "D":
+        for x in range(4) :
+            p.append(matrix[x][clueposition(position)[0]]);
+    elif clueposition(position)[2]=="H" and clueposition(position)[3]== "L":
+        for x in range(4) :
+            p.append(matrix[clueposition(position)[1]][3-x]); 
+    elif clueposition(position)[2]=="V" and clueposition(position)[3]== "U": 
+       for x in range(4) :
+           p.append(matrix[3-x][clueposition(position)[0]]);
+    elif clueposition(position)[2]=="H" and clueposition(position)[3]== "R":
+       for x in range(4) :
+            p.append(matrix[clueposition(position)[1]][x]); 
+
+    #actual height
+    if p[0]==4 :
+        scrapers=1;
+    elif p[1] ==4 :
+        scrapers=2;
+    elif p[2] ==4 and p[1]<p[0] :
+          scrapers=2;
+    elif p[2] ==4 and p[1]>p[0] : #ddd
+          scrapers=3;
+    elif p[3] ==4 and p[2]>p[1] and  p[1]>p[0]:
+          scrapers=4;
+    elif p[3] ==4 and p[1]>2:
+          scrapers=3;
+    elif p[3] ==4 and p[0]>2:
+          scrapers=2;
+    elif p[3] ==4 and p[0]>p[1] and  p[1]<p[2]:
+          scrapers=3;
+    
+    return scrapers
+
+
+def findme(clue,n,matixf) :
+
+    
+    if (clue<4 and clue>=0 or clue>7 and clue<12) :
+        positionx = None;
+        positiony = None;
+        for i in range(4):
+            if(clue>3):
+                clue2=11-clue
+                if (matixf[i][clue2]==n) :
+                    positiony=i;positionx=clue2
+            elif (matixf[i][clue]==n) :
+                positiony=i;positionx=clue   
+    
+    
+    elif (clue>3 and clue<8 or clue>11 and clue<16) :
+        positionx = None;
+        positiony = None;
+        for i in range(4):
+            if(clue>11) :
+                clue2=19-clue
+                if (matixf[clue2-4][i]==n) :
+                    positionx=i;positiony=clue2-4
+            elif (matixf[clue-4][i]==n):
+                positionx=i;positiony=clue-4    
+    else:
+         positionx="Notx";positiony="NOty"
+
+    return [positionx,positiony]
+
+def replace(i,l,matrixfirst):# this function mutates matrix xentries
+   # i&j=x and j&l=y, for positions
+     
+    
+    if type(l[0])==int and type(l[1])==int and type(i[0])==int and type(i[1])==int :
+        
+        n = matrixfirst[i[1]][i[0]] 
+        m = matrixfirst[l[1]][l[0]] 
+        matrixfirst[i[1]][i[0]] = m 
+        matrixfirst[l[1]][l[0]] = n
+        
+    
+
+   
+    return(matrixfirst) 
+def replacey(i,l,matrixfirst):# this function mutates matrix xentries
+   # i&j=x and j&l=y, for positions
+     
+    
+    
+        
+        n = matrixfirst[i] 
+        m = matrixfirst[l] 
+        matrixfirst[i] = m 
+        matrixfirst[l] = n
+        
+    
+
+   
+        return(matrixfirst) 
+
+def trye(clues,matrix) :
+    #figuring 1 out 
+    onesinclues=[];foursposy=[];fourshouldy=[]
+    for f in range(16) :
+        if (clues[f]==1) :
+            onesinclues.append(f)
+    for jo in range(len(onesinclues)) :
+        foursposy.append(findme(onesinclues[jo],4,matrix))
+        fourshouldy.append(clueposition(onesinclues[jo]))
+    nooo=[]
+    for g in range(4):
+        nooo.append(matrix[g])
+    for h in range(4):
+        nooo[fourshouldy[h][1]]=matrix[3-fourshouldy[h][0]] 
+        #nooo worked figure out the rest   
+    noopos=[]
+    noopos2=[]
+    for f in range(16) :
+            noopos.append(cluepositionheight(f,nooo))
+    for f in range(16) :
+        if cluepositionheight(f,nooo)!=clues[f]:
+            noopos2.append(f)
+    #from here on will need to e changed to improve results
+    lost=[]
+    if len(noopos2)>1:
+           for k in range(len(noopos2)):
+               lost.append(nooo[clueposition(noopos2[k])[1]][clueposition(noopos2[k])[0]])
+    for h in range(12,16):
+        #lost[i] take note
+       nooo=(replace(findme(h,lost[0],nooo),findme(h,lost[1],nooo),nooo))
+    return nooo
+    ##noooclueposition(noopos2[0])[1]
+    # (nooo[clueposition(noopos2[0])[0]][clueposition(noopos2[0])[1]])
+
+b = trye([2, 2, 1, 3, 2, 2, 3, 1, 1, 2, 2, 3, 3, 2, 1, 3],
+   [
+    [1,2,3,4],
+    [2,3,4,1],
+    [3,4,1,2],
+    [4,1,2,3]])
+
+
+print(b) ;
